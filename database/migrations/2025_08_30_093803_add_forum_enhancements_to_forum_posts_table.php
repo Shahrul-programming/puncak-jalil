@@ -12,10 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('forum_posts', function (Blueprint $table) {
-            $table->string('category')->default('umum')->after('title');
-            $table->integer('views_count')->default(0)->after('content');
-            $table->boolean('is_pinned')->default(false)->after('views_count');
-            $table->boolean('is_locked')->default(false)->after('is_pinned');
+            // Check if columns don't exist before adding them
+            if (!Schema::hasColumn('forum_posts', 'category')) {
+                $table->string('category')->default('umum')->after('title');
+            }
+            if (!Schema::hasColumn('forum_posts', 'views_count')) {
+                $table->integer('views_count')->default(0)->after('content');
+            }
+            if (!Schema::hasColumn('forum_posts', 'is_pinned')) {
+                $table->boolean('is_pinned')->default(false)->after('views_count');
+            }
+            if (!Schema::hasColumn('forum_posts', 'is_locked')) {
+                $table->boolean('is_locked')->default(false)->after('is_pinned');
+            }
         });
     }
 

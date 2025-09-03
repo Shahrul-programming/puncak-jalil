@@ -5,43 +5,91 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ForumReply;
+use App\Models\ForumPost;
+use App\Models\User;
+use App\Notifications\ForumReplyReceived;
 
 class ForumReplyController extends Controller
 {
-    public function index()
+    public function store(Request $request, ForumPost $forumPost)
     {
-        $forumReplies = ForumReply::all();
-        return view('forum_replies.index', compact('forumReplies'));
+        if ($forumPost->is_locked) {
+            return back()->with('error', 'Post ini telah dikunci. Balasan tidak dibenarkan.');
+        }
+
+        $request->validate([
+            'content' => 'required|string|min:10'
+        ]);
+
+        $reply = ForumReply::create([
+            'post_id' => $forumPost->id,
+            'user_id' => Auth::id(),
+            'content' => $request->content
+        ]);
+
+        // Send notification to post author and admins
+        $postAuthor = $forumPost->user;
+        $admins = User::where('role', 'admin')->get();
+        $notifiableUsers = collect([$postAuthor])->merge($admins)->filter();
+
+        foreach ($notifiableUsers as $user) {
+            if ($user && $user->id !== Auth::id()) {
+                $user->notify(new ForumReplyReceived($reply, $forumPost, Auth::user()));
+            }
+        }
+
+        return back()->with('success', 'Balasan berjaya ditambah!')->withFragment('replies');
     }
-    public function create()
+
+    public function edit(ForumReply $forumReply)
     {
-        return view('forum_replies.create');
-    }
-    public function store(Request $request)
-    {
-        // Simpan forum reply baru
-    }
-    public function edit($id)
-    {
-        $forumReply = ForumReply::findOrFail($id);
         $user = Auth::user();
         if ($user->role !== 'admin' && $forumReply->user_id !== $user->id) {
             abort(403, 'Akses tidak dibenarkan.');
         }
+
+        if ($forumReply->post->is_locked && $user->role !== 'admin') {
+            abort(403, 'Post ini telah dikunci dan balasan tidak boleh diedit.');
+        }
+
         return view('forum_replies.edit', compact('forumReply'));
     }
-    public function update(Request $request, $id)
+
+    public function update(Request $request, ForumReply $forumReply)
     {
-        // Kemaskini forum reply
-    }
-    public function destroy($id)
-    {
-        $forumReply = ForumReply::findOrFail($id);
         $user = Auth::user();
         if ($user->role !== 'admin' && $forumReply->user_id !== $user->id) {
             abort(403, 'Akses tidak dibenarkan.');
         }
+
+        if ($forumReply->post->is_locked && $user->role !== 'admin') {
+            abort(403, 'Post ini telah dikunci dan balasan tidak boleh diedit.');
+        }
+
+        $request->validate([
+            'content' => 'required|string|min:10'
+        ]);
+
+        $forumReply->update([
+            'content' => $request->content
+        ]);
+
+        return redirect()->route('forum-posts.show', $forumReply->post)
+                         ->with('success', 'Balasan berjaya dikemaskini!')
+                         ->withFragment('reply-' . $forumReply->id);
+    }
+
+    public function destroy(ForumReply $forumReply)
+    {
+        $user = Auth::user();
+        if ($user->role !== 'admin' && $forumReply->user_id !== $user->id) {
+            abort(403, 'Akses tidak dibenarkan.');
+        }
+
+        $postId = $forumReply->post_id;
         $forumReply->delete();
-        return redirect()->route('forum-replies.index')->with('success', 'Forum reply dipadam.');
+        
+        return redirect()->route('forum-posts.show', $postId)
+                         ->with('success', 'Balasan berjaya dipadam!');
     }
 }

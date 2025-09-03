@@ -10,14 +10,16 @@ class Shop extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'name', 'category', 'description', 'address',
+        'user_id', 'name', 'category', 'description', 'image', 'address',
         'phone', 'whatsapp', 'website', 'opening_hours', 
         'latitude', 'longitude', 'status'
     ];
 
     protected $casts = [
-        'latitude' => 'decimal:8',
-        'longitude' => 'decimal:8',
+        'latitude'   => 'decimal:8',
+        'longitude'  => 'decimal:8',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     // Relationships
@@ -39,12 +41,53 @@ class Shop extends Model
     // Helper methods
     public function getAverageRatingAttribute()
     {
-        return $this->reviews()->avg('rating') ?? 0;
+        return round($this->reviews()->avg('rating') ?? 0, 1);
     }
 
     public function getReviewCountAttribute()
     {
         return $this->reviews()->count();
+    }
+
+    public function getRatingStarsAttribute()
+    {
+        $rating = $this->average_rating;
+        $stars = [];
+        
+        for ($i = 1; $i <= 5; $i++) {
+            if ($i <= $rating) {
+                $stars[] = 'full';
+            } elseif ($i - 0.5 <= $rating) {
+                $stars[] = 'half';
+            } else {
+                $stars[] = 'empty';
+            }
+        }
+        
+        return $stars;
+    }
+
+    public function getRatingDistributionAttribute()
+    {
+        $distribution = [];
+        $totalReviews = $this->review_count;
+        
+        for ($i = 1; $i <= 5; $i++) {
+            $count = $this->reviews()->where('rating', $i)->count();
+            $percentage = $totalReviews > 0 ? round(($count / $totalReviews) * 100, 1) : 0;
+            
+            $distribution[$i] = [
+                'count' => $count,
+                'percentage' => $percentage
+            ];
+        }
+        
+        return $distribution;
+    }
+
+    public function hasUserReviewed($userId)
+    {
+        return $this->reviews()->where('user_id', $userId)->exists();
     }
 
     public function getFormattedWhatsappLinkAttribute()
@@ -116,5 +159,41 @@ class Shop extends Model
               ->orWhere('description', 'like', "%{$search}%")
               ->orWhere('address', 'like', "%{$search}%");
         });
+    }
+
+    // Distance calculation method
+    public function getDistanceFromCoordinates($userLat, $userLng)
+    {
+        if (!$this->latitude || !$this->longitude) {
+            return null;
+        }
+
+        // Haversine formula to calculate distance between two points
+        $earthRadius = 6371; // Earth's radius in kilometers
+
+        $dLat = deg2rad($this->latitude - $userLat);
+        $dLng = deg2rad($this->longitude - $userLng);
+
+        $a = sin($dLat/2) * sin($dLat/2) + 
+             cos(deg2rad($userLat)) * cos(deg2rad($this->latitude)) * 
+             sin($dLng/2) * sin($dLng/2);
+        
+        $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+        $distance = $earthRadius * $c;
+
+        return round($distance, 2);
+    }
+
+    // Scope for nearby shops
+    public function scopeNearby($query, $userLat, $userLng, $radiusKm = 10)
+    {
+        if (!$userLat || !$userLng) {
+            return $query;
+        }
+
+        return $query->whereRaw(
+            "(6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) < ?",
+            [$userLat, $userLng, $userLat, $radiusKm]
+        );
     }
 }

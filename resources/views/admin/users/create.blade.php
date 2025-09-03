@@ -11,32 +11,20 @@
                        class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
                         <i class="fas fa-arrow-left mr-1"></i>Back to Users
                     </a>
-                    <span class="text-gray-400">/</span>
-                    <a href="{{ route('admin.users.show', $user) }}" 
-                       class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                        {{ $user->name }}
-                    </a>
                 </div>
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
-                    <i class="fas fa-user-edit text-blue-600 mr-3"></i>
-                    Edit User
+                    <i class="fas fa-user-plus text-blue-600 mr-3"></i>
+                    Create New User
                 </h1>
-                <p class="text-gray-600 dark:text-gray-400 mt-1">Update user information and settings</p>
-            </div>
-            <div class="flex items-center space-x-3">
-                <a href="{{ route('admin.users.show', $user) }}" 
-                   class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition duration-200">
-                    <i class="fas fa-eye mr-2"></i>View Profile
-                </a>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">Add a new user to the system</p>
             </div>
         </div>
     </div>
 
     <div class="max-w-2xl mx-auto">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-            <form method="POST" action="{{ route('admin.users.update', $user) }}" class="p-6 space-y-6">
+            <form method="POST" action="{{ route('admin.users.store') }}" class="p-6 space-y-6">
                 @csrf
-                @method('PUT')
 
                 <!-- Basic Information -->
                 <div>
@@ -50,7 +38,7 @@
                         <input type="text" 
                                id="name" 
                                name="name" 
-                               value="{{ old('name', $user->name) }}" 
+                               value="{{ old('name') }}" 
                                required
                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('name') border-red-500 @enderror">
                         @error('name')
@@ -66,29 +54,24 @@
                         <input type="email" 
                                id="email" 
                                name="email" 
-                               value="{{ old('email', $user->email) }}" 
+                               value="{{ old('email') }}" 
                                required
                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('email') border-red-500 @enderror">
                         @error('email')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
                     </div>
-                </div>
 
-                <!-- Password Change -->
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Password (Optional)</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Leave password fields empty to keep current password</p>
-                    
-                    <!-- New Password -->
+                    <!-- Password -->
                     <div class="mb-4">
                         <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            New Password
+                            Password <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
                             <input type="password" 
                                    id="password" 
                                    name="password" 
+                                   required
                                    class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('password') border-red-500 @enderror">
                             <button type="button" 
                                     onclick="togglePassword('password')"
@@ -105,12 +88,13 @@
                     <!-- Confirm Password -->
                     <div class="mb-4">
                         <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Confirm New Password
+                            Confirm Password <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
                             <input type="password" 
                                    id="password_confirmation" 
                                    name="password_confirmation" 
+                                   required
                                    class="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
                             <button type="button" 
                                     onclick="togglePassword('password_confirmation')"
@@ -133,17 +117,12 @@
                         <select id="role" 
                                 name="role" 
                                 required
-                                {{ $user->id === auth()->id() ? 'disabled' : '' }}
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('role') border-red-500 @enderror {{ $user->id === auth()->id() ? 'bg-gray-100 dark:bg-gray-600' : '' }}">
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('role') border-red-500 @enderror">
                             <option value="">Select Role</option>
-                            <option value="user" {{ old('role', $user->role) === 'user' ? 'selected' : '' }}>User</option>
-                            <option value="vendor" {{ old('role', $user->role) === 'vendor' ? 'selected' : '' }}>Vendor</option>
-                            <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Admin</option>
+                            <option value="user" {{ old('role') === 'user' ? 'selected' : '' }}>User</option>
+                            <option value="vendor" {{ old('role') === 'vendor' ? 'selected' : '' }}>Vendor</option>
+                            <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
                         </select>
-                        @if($user->id === auth()->id())
-                            <input type="hidden" name="role" value="{{ $user->role }}">
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">You cannot change your own role</p>
-                        @endif
                         @error('role')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
@@ -156,21 +135,21 @@
                                    id="email_verified" 
                                    name="email_verified" 
                                    value="1"
-                                   {{ old('email_verified', $user->email_verified_at ? '1' : '') ? 'checked' : '' }}
+                                   {{ old('email_verified') ? 'checked' : '' }}
                                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                             <label for="email_verified" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                                Email verified
+                                Mark email as verified
                             </label>
                         </div>
                         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            Controls whether the user's email is marked as verified
+                            If checked, the user will not need to verify their email address
                         </p>
                     </div>
                 </div>
 
                 <!-- Contact Information -->
                 <div>
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Contact Information</h3>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Contact Information (Optional)</h3>
                     
                     <!-- Phone -->
                     <div class="mb-4">
@@ -180,7 +159,7 @@
                         <input type="text" 
                                id="phone" 
                                name="phone" 
-                               value="{{ old('phone', $user->phone) }}" 
+                               value="{{ old('phone') }}" 
                                placeholder="+60 12-345 6789"
                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('phone') border-red-500 @enderror">
                         @error('phone')
@@ -197,48 +176,22 @@
                                   name="address" 
                                   rows="3"
                                   placeholder="Enter full address..."
-                                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('address') border-red-500 @enderror">{{ old('address', $user->address) }}</textarea>
+                                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white @error('address') border-red-500 @enderror">{{ old('address') }}</textarea>
                         @error('address')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
                     </div>
                 </div>
 
-                <!-- Account Information -->
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Account Information</h3>
-                    
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-2">
-                        <div class="flex justify-between">
-                            <span class="text-sm text-gray-600 dark:text-gray-400">User ID:</span>
-                            <span class="text-sm text-gray-900 dark:text-gray-100">{{ $user->id }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-sm text-gray-600 dark:text-gray-400">Member Since:</span>
-                            <span class="text-sm text-gray-900 dark:text-gray-100">{{ $user->created_at->format('M d, Y') }}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-sm text-gray-600 dark:text-gray-400">Last Updated:</span>
-                            <span class="text-sm text-gray-900 dark:text-gray-100">{{ $user->updated_at->format('M d, Y') }}</span>
-                        </div>
-                        @if($user->email_verified_at)
-                            <div class="flex justify-between">
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Email Verified:</span>
-                                <span class="text-sm text-gray-900 dark:text-gray-100">{{ $user->email_verified_at->format('M d, Y') }}</span>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-
                 <!-- Form Actions -->
                 <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                    <a href="{{ route('admin.users.show', $user) }}" 
+                    <a href="{{ route('admin.users.index') }}" 
                        class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium transition duration-200">
                         Cancel
                     </a>
                     <button type="submit" 
                             class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition duration-200">
-                        <i class="fas fa-save mr-2"></i>Update User
+                        <i class="fas fa-save mr-2"></i>Create User
                     </button>
                 </div>
             </form>
