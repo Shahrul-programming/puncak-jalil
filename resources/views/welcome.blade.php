@@ -17,20 +17,43 @@
     <div class="min-h-screen flex flex-col justify-between {{ $backgroundColor }}">
         <!-- Navigation -->
         @if (Route::has('login'))
-            <nav class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
+            <nav class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between items-center py-4">
                         <div class="flex items-center">
-                            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Puncak Jalil Community Hub</h2>
+                            <h2 class="text-xl font-bold text-gray-900 dark:text-white hover:text-blue-600 transition-colors">Puncak Jalil Community Hub</h2>
                         </div>
-                        <div class="flex items-center space-x-4">
+                        <div class="hidden md:flex items-center space-x-6">
+                            <a href="#features" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors">Ciri-ciri</a>
+                            <a href="#promotions" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors">Promosi</a>
+                            <a href="{{ route('shops.index') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors">Kedai</a>
                             @auth
-                                <a href="{{ url('/dashboard') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">Dashboard</a>
+                                <a href="{{ url('/dashboard') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:shadow-lg">Dashboard</a>
                             @else
-                                <a href="{{ route('login') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium">Log in</a>
+                                <a href="{{ route('login') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors">Log in</a>
                                 @if (Route::has('register'))
-                                    <a href="{{ route('register') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">Register</a>
+                                    <a href="{{ route('register') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:shadow-lg">Register</a>
                                 @endif
+                            @endauth
+                        </div>
+                        <!-- Mobile menu button -->
+                        <div class="md:hidden">
+                            <button type="button" class="text-gray-700 dark:text-gray-300 hover:text-blue-600" onclick="toggleMobileMenu()">
+                                <i class="fas fa-bars text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Mobile menu -->
+                    <div id="mobile-menu" class="hidden md:hidden pb-4">
+                        <div class="flex flex-col space-y-2">
+                            <a href="#features" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 py-2">Ciri-ciri</a>
+                            <a href="#promotions" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 py-2">Promosi</a>
+                            <a href="{{ route('shops.index') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 py-2">Kedai</a>
+                            @auth
+                                <a href="{{ url('/dashboard') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-center">Dashboard</a>
+                            @else
+                                <a href="{{ route('login') }}" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 py-2">Log in</a>
+                                <a href="{{ route('register') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-center">Register</a>
                             @endauth
                         </div>
                     </div>
@@ -63,6 +86,45 @@
                     {{ $description }}
                 </p>
                 
+                <!-- Call-to-Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+                    @auth
+                        <a href="{{ url('/dashboard') }}" class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Pergi ke Dashboard
+                        </a>
+                    @else
+                        <a href="{{ route('register') }}?role=vendor" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2">
+                            <i class="fas fa-store"></i>
+                            Daftar sebagai Peniaga
+                        </a>
+                        <a href="{{ route('register') }}" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2">
+                            <i class="fas fa-user"></i>
+                            Daftar sebagai Pengguna
+                        </a>
+                    @endauth
+                </div>
+                
+                <!-- Quick Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto mb-8">
+                    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-blue-600">120+</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Kedai Aktif</div>
+                    </div>
+                    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-green-600">350+</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Ulasan</div>
+                    </div>
+                    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-purple-600">15</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Event Aktif</div>
+                    </div>
+                    <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-orange-600">80+</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Forum Post</div>
+                    </div>
+                </div>
+                
                 <!-- Search Bar -->
                 <form action="{{ route('shops.index') }}" method="GET" class="flex items-center max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow px-4 py-3 gap-2 mb-10">
                     <input type="text" name="search" class="flex-1 bg-transparent outline-none px-2 py-2 text-gray-700 dark:text-gray-200" placeholder="Cari kedai, servis, atau lokasi...">
@@ -70,8 +132,73 @@
                 </form>
             </div>
             
+            <!-- Featured Promotions Section -->
+            <div id="promotions" class="w-full max-w-7xl mx-auto mb-16">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">🎉 Promosi Terkini</h2>
+                    <p class="text-gray-600 dark:text-gray-400">Dapatkan tawaran terbaik dari peniaga komuniti</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @php
+                        $featuredPromotions = \App\Models\Promotion::where('is_featured', true)
+                            ->where('end_date', '>=', now())
+                            ->with('shop')
+                            ->take(6)
+                            ->get();
+                    @endphp
+                    
+                    @forelse($featuredPromotions as $promotion)
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                            @if($promotion->shop && $promotion->shop->image)
+                                <img src="{{ asset('storage/' . $promotion->shop->image) }}" alt="{{ $promotion->shop->name }}" class="w-full h-48 object-cover">
+                            @else
+                                <div class="w-full h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                    <span class="text-white text-4xl">🏪</span>
+                                </div>
+                            @endif
+                            
+                            <div class="p-6">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $promotion->title }}</h3>
+                                    <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">FEATURED</span>
+                                </div>
+                                
+                                @if($promotion->shop)
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">{{ $promotion->shop->name }}</p>
+                                @endif
+                                
+                                <p class="text-gray-700 dark:text-gray-300 text-sm mb-4 line-clamp-2">{{ Str::limit($promotion->description, 100) }}</p>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                                        <i class="fas fa-calendar-alt mr-1"></i>
+                                        Sampai {{ \Carbon\Carbon::parse($promotion->end_date)->format('d M Y') }}
+                                    </div>
+                                    <a href="{{ route('promotions.show', $promotion) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                        Lihat Tawaran
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="col-span-full text-center py-12">
+                            <div class="text-6xl mb-4">🎁</div>
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Tiada Promosi Aktif</h3>
+                            <p class="text-gray-600 dark:text-gray-400">Promosi terkini akan dipaparkan di sini</p>
+                        </div>
+                    @endforelse
+                </div>
+                
+                <div class="text-center mt-8">
+                    <a href="{{ route('promotions.index') }}" class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
+                        Lihat Semua Promosi
+                    </a>
+                </div>
+            </div>
+            
             <div class="w-full max-w-7xl mx-auto">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-14">
+                <div id="features" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-14">
                     <!-- Feature Cards -->
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 flex flex-col gap-2 border-t-4 border-indigo-500">
                         <div class="font-bold text-lg text-gray-800 dark:text-gray-100 mb-1 flex items-center gap-2">
@@ -122,6 +249,76 @@
                     </div>
                 </div>
                 
+                <!-- Testimonials Section -->
+                <div class="w-full max-w-7xl mx-auto mb-16">
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">💬 Apa Kata Pengguna Kami</h2>
+                        <p class="text-gray-600 dark:text-gray-400">Pengalaman penduduk Puncak Jalil dengan platform kami</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-4">
+                                    <span class="text-blue-600 dark:text-blue-400 font-bold">A</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900 dark:text-white">Ahmad Rahman</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Penduduk Puncak Jalil</p>
+                                </div>
+                            </div>
+                            <div class="flex text-yellow-400 mb-3">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <p class="text-gray-700 dark:text-gray-300 italic">"Platform ini sangat membantu! Saya dapat mencari servis gunting rambut yang terbaik di kawasan dengan mudah. Review daripada pengguna lain sangat berguna."</p>
+                        </div>
+                        
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mr-4">
+                                    <span class="text-green-600 dark:text-green-400 font-bold">S</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900 dark:text-white">Siti Aminah</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Peniaga</p>
+                                </div>
+                            </div>
+                            <div class="flex text-yellow-400 mb-3">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <p class="text-gray-700 dark:text-gray-300 italic">"Sebagai peniaga, platform ini membantu saya promosi perniagaan dengan lebih efektif. Traffic pelanggan meningkat 30% sejak mendaftar!"</p>
+                        </div>
+                        
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mr-4">
+                                    <span class="text-purple-600 dark:text-purple-400 font-bold">M</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900 dark:text-white">Mohd Zaki</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Penduduk & Moderator Forum</p>
+                                </div>
+                            </div>
+                            <div class="flex text-yellow-400 mb-3">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <p class="text-gray-700 dark:text-gray-300 italic">"Forum komuniti sangat aktif! Saya dapat berkongsi maklumat penting dan mendapatkan bantuan daripada jiran-jiran. Sistem laporan juga sangat berguna."</p>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="w-full flex flex-wrap justify-center gap-6 mb-14">
                     <a href="{{ route('shops.index') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded shadow font-semibold">Senarai Kedai</a>
                     <a href="{{ route('promotions.index') }}" class="bg-pink-600 hover:bg-pink-700 text-white px-5 py-2 rounded shadow font-semibold">Promosi</a>
@@ -166,6 +363,24 @@
             </div>
         </main>
         
+        <!-- Advertisement Banner -->
+        <div class="w-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 py-8">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h3 class="text-2xl font-bold text-white mb-2">🚀 Tingkatkan Perniagaan Anda!</h3>
+                    <p class="text-white/90 mb-6 max-w-2xl mx-auto">Dapatkan lebih ramai pelanggan dengan promosi featured dan banner iklan premium di platform komuniti Puncak Jalil</p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="{{ route('register') }}?role=vendor" class="bg-white text-orange-600 hover:bg-gray-100 px-8 py-3 rounded-lg font-bold shadow-lg transition-colors">
+                            Daftar sebagai Peniaga
+                        </a>
+                        <a href="{{ route('promotions.create') }}" class="bg-orange-600 text-white hover:bg-orange-700 px-8 py-3 rounded-lg font-bold shadow-lg transition-colors">
+                            Buat Promosi Baru
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <!-- Footer with Contact Info -->
         @if(($siteSetting && $siteSetting->contact_phone) || ($siteSetting && $siteSetting->contact_email))
             <div class="w-full py-6 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
@@ -199,5 +414,65 @@
     
     <!-- Material Icons CDN for icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in');
+                }
+            });
+        }, observerOptions);
+        
+        // Observe elements for animation
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.bg-white.dark\\:bg-gray-800').forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+    
+    <style>
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
 </body>
 </html>

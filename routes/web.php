@@ -82,11 +82,48 @@ Route::middleware('auth')->group(function () {
         ->name('admin.users.stop-impersonating');
 
     // Resource routes
-    Route::resource('shops', ShopController::class);
-    Route::resource('promotions', PromotionController::class);
-    Route::resource('events', EventController::class);
-    Route::resource('forum-posts', ForumPostController::class);
-    Route::resource('reports', ReportController::class);
+    Route::resource('shops', ShopController::class)->middleware('auth');
+    Route::resource('promotions', PromotionController::class)->middleware('auth');
+    Route::resource('events', EventController::class)->middleware('auth');
+    Route::resource('forum-posts', ForumPostController::class)->middleware('auth');
+    Route::resource('reports', ReportController::class)->middleware('auth');
+    Route::resource('orders', App\Http\Controllers\OrderController::class)->middleware('auth');
+
+        // Additional order routes
+        Route::patch('orders/{order}/cancel', [App\Http\Controllers\OrderController::class, 'cancel'])->name('orders.cancel');
+        Route::patch('orders/{order}/status', [App\Http\Controllers\OrderController::class, 'updateStatus'])->name('orders.update-status');
+        Route::patch('orders/{order}/assign-rider', [App\Http\Controllers\OrderController::class, 'assignRider'])->name('orders.assign-rider');
+        Route::patch('orders/{order}/unassign-rider', [App\Http\Controllers\OrderController::class, 'unassignRider'])->name('orders.unassign-rider');
+        Route::get('orders/{order}/available-riders', [App\Http\Controllers\OrderController::class, 'getAvailableRiders'])->name('orders.available-riders');
+
+        // Menu management routes
+        Route::resource('menu', App\Http\Controllers\MenuController::class)->middleware('auth');
+        Route::patch('menu/{menuItem}/toggle-availability', [App\Http\Controllers\MenuController::class, 'toggleAvailability'])->name('menu.toggle-availability')->middleware('auth');
+
+        // Rider management routes
+        Route::resource('riders', App\Http\Controllers\RiderController::class);
+        Route::patch('riders/{rider}/availability', [App\Http\Controllers\RiderController::class, 'updateAvailability'])->name('riders.update-availability');
+        Route::patch('riders/{rider}/location', [App\Http\Controllers\RiderController::class, 'updateLocation'])->name('riders.update-location');
+        Route::get('riders/available/get', [App\Http\Controllers\RiderController::class, 'getAvailableRiders'])->name('riders.available');
+        Route::get('riders/statistics/get', [App\Http\Controllers\RiderController::class, 'getStatistics'])->name('riders.statistics');
+    });
+
+    // Vendor routes
+    Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'vendor'])->group(function () {
+        Route::get('dashboard', [App\Http\Controllers\VendorController::class, 'dashboard'])->name('dashboard');
+        Route::get('orders', [App\Http\Controllers\VendorController::class, 'orders'])->name('orders');
+        Route::get('orders/{order}', [App\Http\Controllers\VendorController::class, 'showOrder'])->name('orders.show');
+        Route::patch('orders/{order}/status', [App\Http\Controllers\VendorController::class, 'updateOrderStatus'])->name('orders.update-status');
+        Route::patch('orders/{order}/assign-rider', [App\Http\Controllers\VendorController::class, 'assignRider'])->name('orders.assign-rider');
+        Route::patch('orders/{order}/unassign-rider', [App\Http\Controllers\VendorController::class, 'unassignRider'])->name('orders.unassign-rider');
+        Route::get('available-riders', [App\Http\Controllers\VendorController::class, 'getAvailableRiders'])->name('available-riders');
+        Route::get('menu', [App\Http\Controllers\VendorController::class, 'menu'])->name('menu');
+        Route::patch('menu/{menuItem}/toggle-availability', [App\Http\Controllers\VendorController::class, 'toggleMenuAvailability'])->name('menu.toggle-availability');
+        Route::get('reports', [App\Http\Controllers\VendorController::class, 'reports'])->name('reports');
+    });
+
+    // Order checkout route
+    Route::post('orders/checkout', [App\Http\Controllers\OrderController::class, 'checkout'])->name('orders.checkout');
     
     // Review routes
     Route::post('reviews', [ReviewController::class, 'store'])->name('reviews.store');
@@ -118,10 +155,18 @@ Route::middleware('auth')->group(function () {
         Route::get('admin/reports', [ReportController::class, 'adminIndex'])->name('reports.admin');
         Route::patch('reports/{report}/status', [ReportController::class, 'updateStatus'])->name('reports.update-status');
     });
-});
+
 
 // ✅ Auth scaffolding (Laravel Breeze / Jetstream / Fortify)
 require __DIR__.'/auth.php';
 
 // Public promotions page (accessible to all)
 Route::get('/promotions/public', [PromotionController::class, 'publicIndex'])->name('promotions.public');
+
+// Notification Preferences Routes (authenticated users only)
+Route::middleware('auth')->group(function () {
+    Route::get('/notification-preferences', [App\Http\Controllers\NotificationPreferenceController::class, 'index'])
+        ->name('notification-preferences.index');
+    Route::put('/notification-preferences', [App\Http\Controllers\NotificationPreferenceController::class, 'update'])
+        ->name('notification-preferences.update');
+});

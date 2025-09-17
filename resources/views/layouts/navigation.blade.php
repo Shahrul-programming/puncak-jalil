@@ -114,6 +114,18 @@
                             </x-dropdown-link>
                         @endif
 
+                        @if(Auth::user()->role === 'vendor')
+                            <x-dropdown-link :href="route('vendor.dashboard')">
+                                <i class="fas fa-store mr-1"></i>
+                                {{ __('Vendor Dashboard') }}
+                            </x-dropdown-link>
+                        @endif
+
+                        <x-dropdown-link :href="route('notification-preferences.index')">
+                            <i class="fas fa-bell mr-1"></i>
+                            {{ __('Tetapan Notifikasi') }}
+                        </x-dropdown-link>
+
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf

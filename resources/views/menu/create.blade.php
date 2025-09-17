@@ -1,0 +1,174 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Tambah Item Menu Baru</h1>
+            <p class="text-gray-600 dark:text-gray-400">Tambah item menu untuk kedai anda</p>
+        </div>
+
+        <!-- Form -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
+            <form method="POST" action="{{ route('menu.store') }}" enctype="multipart/form-data">
+                @csrf
+
+                <!-- Shop Selection (if multiple shops) -->
+                @if($shops->count() > 1)
+                    <div class="mb-6">
+                        <label for="shop_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Pilih Kedai *
+                        </label>
+                        <select name="shop_id" id="shop_id" required
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                            <option value="">Pilih Kedai</option>
+                            @foreach($shops as $shopOption)
+                                <option value="{{ $shopOption->id }}" {{ $selectedShop && $selectedShop->id == $shopOption->id ? 'selected' : '' }}>
+                                    {{ $shopOption->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('shop_id')
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+                @else
+                    <input type="hidden" name="shop_id" value="{{ $selectedShop ? $selectedShop->id : $shops->first()->id }}">
+                @endif
+
+                <!-- Basic Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Item Name -->
+                    <div class="md:col-span-2">
+                        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Nama Item *
+                        </label>
+                        <input type="text" id="name" name="name" value="{{ old('name') }}" required
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                               placeholder="Contoh: Nasi Lemak">
+                        @error('name')
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Category -->
+                    <div>
+                        <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Kategori *
+                        </label>
+                        <select id="category" name="category" required
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                            <option value="">Pilih Kategori</option>
+                            @foreach($categories as $key => $value)
+                                <option value="{{ $key }}" {{ old('category') == $key ? 'selected' : '' }}>
+                                    {{ $value }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('category')
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Price -->
+                    <div>
+                        <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Harga (RM) *
+                        </label>
+                        <input type="number" id="price" name="price" value="{{ old('price') }}" step="0.01" min="0" required
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                               placeholder="0.00">
+                        @error('price')
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Status -->
+                    <div>
+                        <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Status
+                        </label>
+                        <select id="status" name="status"
+                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
+                            <option value="available" {{ old('status', 'available') == 'available' ? 'selected' : '' }}>Tersedia</option>
+                            <option value="unavailable" {{ old('status') == 'unavailable' ? 'selected' : '' }}>Tidak Tersedia</option>
+                        </select>
+                        @error('status')
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Preparation Time -->
+                    <div>
+                        <label for="preparation_time" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Masa Penyediaan (minit)
+                        </label>
+                        <input type="number" id="preparation_time" name="preparation_time" value="{{ old('preparation_time') }}" min="0"
+                               class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                               placeholder="15">
+                        @error('preparation_time')
+                            <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-6">
+                    <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Penerangan
+                    </label>
+                    <textarea id="description" name="description" rows="4"
+                              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                              placeholder="Terangkan tentang item menu ini...">{{ old('description') }}</textarea>
+                    @error('description')
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Image Upload -->
+                <div class="mb-6">
+                    <label for="image" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Gambar Item Menu (Optional)
+                    </label>
+                    <input type="file" id="image" name="image"
+                           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                           accept="image/jpeg,image/png,image/jpg,image/gif">
+                    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Format yang disokong: JPEG, PNG, JPG, GIF. Maksimum 2MB.</p>
+                    @error('image')
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Ingredients (Optional) -->
+                <div class="mb-6">
+                    <label for="ingredients" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Bahan-Bahan (Optional)
+                    </label>
+                    <textarea id="ingredients" name="ingredients" rows="3"
+                              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                              placeholder="Senaraikan bahan-bahan yang digunakan...">{{ old('ingredients') }}</textarea>
+                    @error('ingredients')
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <a href="{{ route('menu.index', $selectedShop ? ['shop_id' => $selectedShop->id] : []) }}"
+                       class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                        Batal
+                    </a>
+                    <button type="submit"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Simpan Item Menu
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endsection

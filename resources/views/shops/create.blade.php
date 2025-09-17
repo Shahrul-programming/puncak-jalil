@@ -39,13 +39,9 @@
                             <select id="category" name="category" required
                                     class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
                                 <option value="">Pilih Kategori</option>
-                                <option value="Makanan" {{ old('category') == 'Makanan' ? 'selected' : '' }}>Makanan</option>
-                                <option value="Kedai Runcit" {{ old('category') == 'Kedai Runcit' ? 'selected' : '' }}>Kedai Runcit</option>
-                                <option value="Perkhidmatan" {{ old('category') == 'Perkhidmatan' ? 'selected' : '' }}>Perkhidmatan</option>
-                                <option value="Kesihatan" {{ old('category') == 'Kesihatan' ? 'selected' : '' }}>Kesihatan</option>
-                                <option value="Pendidikan" {{ old('category') == 'Pendidikan' ? 'selected' : '' }}>Pendidikan</option>
-                                <option value="Automotif" {{ old('category') == 'Automotif' ? 'selected' : '' }}>Automotif</option>
-                                <option value="Lain-lain" {{ old('category') == 'Lain-lain' ? 'selected' : '' }}>Lain-lain</option>
+                                @foreach(\App\Models\Shop::getCategories() as $key => $value)
+                                    <option value="{{ $key }}" {{ old('category') == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                @endforeach
                             </select>
                             @error('category')
                                 <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>

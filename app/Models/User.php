@@ -84,4 +84,16 @@ class User extends Authenticatable
     {
         return $this->hasMany(Report::class);
     }
+
+    // Relationship: 1 User boleh buat banyak order
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    // Relationship: 1 User ada 1 notification preference
+    public function notificationPreference()
+    {
+        return $this->hasOne(NotificationPreference::class);
+    }
 }

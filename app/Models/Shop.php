@@ -38,6 +38,16 @@ class Shop extends Model
         return $this->hasMany(Promotion::class);
     }
 
+    public function menuItems()
+    {
+        return $this->hasMany(MenuItem::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
     // Helper methods
     public function getAverageRatingAttribute()
     {
@@ -47,6 +57,27 @@ class Shop extends Model
     public function getReviewCountAttribute()
     {
         return $this->reviews()->count();
+    }
+
+    // Static method to get available categories
+    public static function getCategories()
+    {
+        return [
+            'Makanan' => 'Makanan',
+            'Minuman' => 'Minuman',
+            'Kedai Runcit' => 'Kedai Runcit',
+            'Pakaian' => 'Pakaian',
+            'Elektronik' => 'Elektronik',
+            'Kecantikan' => 'Kecantikan',
+            'Kesihatan' => 'Kesihatan',
+            'Pendidikan' => 'Pendidikan',
+            'Automotif' => 'Automotif',
+            'Perkhidmatan' => 'Perkhidmatan',
+            'Rumah & Taman' => 'Rumah & Taman',
+            'Sukan & Rekreasi' => 'Sukan & Rekreasi',
+            'Kewangan' => 'Kewangan',
+            'Lain-lain' => 'Lain-lain'
+        ];
     }
 
     public function getRatingStarsAttribute()

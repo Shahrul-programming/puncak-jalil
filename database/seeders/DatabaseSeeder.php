@@ -21,6 +21,8 @@ class DatabaseSeeder extends Seeder
             EventSeeder::class,
             ForumSeeder::class,
             ReportSeeder::class,
+            RiderSeeder::class,
+            NotificationPreferenceSeeder::class,
         ]);
     }
 }

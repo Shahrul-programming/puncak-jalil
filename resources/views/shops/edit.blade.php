@@ -40,13 +40,9 @@
                             <select id="category" name="category" required
                                     class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white">
                                 <option value="">Pilih kategori</option>
-                                <option value="Makanan" {{ old('category', $shop->category) == 'Makanan' ? 'selected' : '' }}>Makanan</option>
-                                <option value="Pakaian" {{ old('category', $shop->category) == 'Pakaian' ? 'selected' : '' }}>Pakaian</option>
-                                <option value="Elektronik" {{ old('category', $shop->category) == 'Elektronik' ? 'selected' : '' }}>Elektronik</option>
-                                <option value="Kecantikan" {{ old('category', $shop->category) == 'Kecantikan' ? 'selected' : '' }}>Kecantikan</option>
-                                <option value="Rumah & Taman" {{ old('category', $shop->category) == 'Rumah & Taman' ? 'selected' : '' }}>Rumah & Taman</option>
-                                <option value="Perkhidmatan" {{ old('category', $shop->category) == 'Perkhidmatan' ? 'selected' : '' }}>Perkhidmatan</option>
-                                <option value="Lain-lain" {{ old('category', $shop->category) == 'Lain-lain' ? 'selected' : '' }}>Lain-lain</option>
+                                @foreach(\App\Models\Shop::getCategories() as $key => $value)
+                                    <option value="{{ $key }}" {{ old('category', $shop->category) == $key ? 'selected' : '' }}>{{ $value }}</option>
+                                @endforeach
                             </select>
                             @error('category')
                                 <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>

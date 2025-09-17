@@ -145,9 +145,9 @@ class ShopController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Shop $shop)
     {
-        $shop = Shop::with(['user', 'reviews.user', 'promotions'])->findOrFail($id);
+        $shop->load(['user', 'reviews.user', 'promotions']);
         
         $averageRating = $shop->average_rating;
         $reviewCount = $shop->review_count;
@@ -158,9 +158,8 @@ class ShopController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Shop $shop)
     {
-        $shop = Shop::findOrFail($id);
         $user = Auth::user();
         if ($user->role !== 'admin' && $shop->user_id !== $user->id) {
             abort(403, 'Akses tidak dibenarkan.');
@@ -171,9 +170,8 @@ class ShopController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Shop $shop)
     {
-        $shop = Shop::findOrFail($id);
         $user = Auth::user();
         if ($user->role !== 'admin' && $shop->user_id !== $user->id) {
             abort(403, 'Akses tidak dibenarkan.');
@@ -225,9 +223,8 @@ class ShopController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Shop $shop)
     {
-        $shop = Shop::findOrFail($id);
         $user = Auth::user();
         if ($user->role !== 'admin' && $shop->user_id !== $user->id) {
             abort(403, 'Akses tidak dibenarkan.');
